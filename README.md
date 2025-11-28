@@ -1,5 +1,4 @@
-# 999
-<!DOCTYPE html>
+# 999和Graceieee
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
@@ -84,7 +83,7 @@
         <div class="flex justify-around items-center text-center font-bold text-lg md:text-2xl p-4 rounded-lg bg-black/40 border border-yellow-700">
             <div>
                 <p class="text-yellow-300">余额 (金币)</p>
-                <p id="balance" class="text-3xl md:text-4xl mt-1 text-green-400">1000</p>
+                <p id="balance" class="text-3xl md:text-4xl mt-1 text-green-400">200</p>
             </div>
             <div>
                 <p class="text-yellow-300">当前投注</p>
@@ -115,9 +114,27 @@
 
     </div>
 
+    <!-- 借款模态框 (Loan Modal) -->
+    <div id="loan-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+        <div class="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-md border-4 border-yellow-500 text-center space-y-6">
+            <h2 class="text-3xl font-extrabold text-red-400">🚨 资金短缺 🚨</h2>
+            <p class="text-xl text-amber-100">
+                您的金币不足以支付 <span id="modal-bet-amount">100</span> 的投注！
+            </p>
+            <p class="text-lg text-yellow-300 font-bold">
+                点击下方按钮向 <span class="text-green-400">付嘉圣大少爷</span> 借钱，并获得 <span class="text-green-400">100</span> 金币恩赐。
+            </p>
+            
+            <!-- 借款按钮 -->
+            <button onclick="requestLoan()" class="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xl rounded-lg transition transform hover:scale-[1.02] shadow-lg" style="box-shadow: 0 4px #4f46e5;">
+                叫声 “爸爸”，获得恩赐 100 金币
+            </button>
+        </div>
+    </div>
+
     <script>
         // --- 游戏状态变量 ---
-        let balance = 1000;
+        let balance = 200; // 初始余额设置为 200
         const betAmount = 100;
         let isSpinning = false;
 
@@ -144,6 +161,7 @@
             document.getElementById('reel-1'),
             document.getElementById('reel-2')
         ];
+        const loanModal = document.getElementById('loan-modal'); // 借款模态框引用
 
         // --- 核心游戏逻辑 ---
 
@@ -199,18 +217,54 @@
             return { winnings: 0, message: '😞 很遗憾，本轮没有中奖。' };
         }
 
+        // --- 新增借款功能函数 ---
+        
+        /**
+         * 显示借款模态框
+         */
+        function showLoanModal() {
+            if (loanModal) {
+                loanModal.classList.remove('hidden');
+            }
+        }
+
+        /**
+         * 隐藏借款模态框
+         */
+        function hideLoanModal() {
+            if (loanModal) {
+                loanModal.classList.add('hidden');
+            }
+        }
+
+        /**
+         * 处理借款请求
+         */
+        function requestLoan() {
+            const loanAmount = 100;
+            balance += loanAmount;
+            hideLoanModal();
+            messageEl.textContent = `💰 感谢您，付嘉圣大少爷！恩赐 ${loanAmount} 金币已到账，请继续游玩。`;
+            messageEl.className = 'text-xl md:text-2xl font-extrabold p-2 rounded bg-indigo-700 text-white';
+            updateUI(); // 触发 UI 更新和按钮重新启用
+        }
+
         /**
          * 更新 UI 显示
          */
         function updateUI() {
             balanceEl.textContent = balance;
             if (balance < betAmount) {
+                // 余额不足，禁用按钮并显示借款提示
                 spinButton.disabled = true;
                 spinButton.classList.add('opacity-50', 'cursor-not-allowed');
-                messageEl.textContent = '❌ 余额不足！请重新开始游戏。';
+                messageEl.textContent = '❌ 余额不足！请向付嘉圣大少爷借款。';
+                showLoanModal(); 
             } else {
+                // 余额充足，启用按钮并隐藏模态框
                 spinButton.disabled = false;
                 spinButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                hideLoanModal();
             }
         }
 
